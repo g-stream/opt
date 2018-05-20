@@ -7,6 +7,7 @@ double Element_Shell::max_z = 0;
 
 void ParserKFile::parser()
 {
+    using namespace std;
     std::cout << "executing parser" << std::endl;
     m_input.clear();
     m_input.seekg(0,std::ios::beg);
@@ -45,6 +46,7 @@ void ParserKFile::parser()
 }
 void ParserKFile::dump()
 {
+    using namespace std;
     std::cout << "executing dump" << std::endl;
     m_state = -1;
     m_input.clear();
@@ -93,6 +95,7 @@ void ParserKFile::adjust()
 {
     std::cout << "executing adjust" << std::endl;
     using namespace std;
+    ofstream nano_rate_output_file(work_dir + "/rate.txt");
     std::vector<Opt_Par>& pars = extractOptPar();
     //computer the center of the element_shell
     for(auto p: m_element_shells){
@@ -179,12 +182,20 @@ void ParserKFile::adjust()
             //std::cout << e.side << std::endl;
         }
     }
-
+    int all = 0;
+    int enforced = 0;
+    for(auto& i: m_element_shells){
+        if(i.second.pid == ENFORCED_PART)
+            enforced++;
+        all++;
+    }
+    nano_rate_output_file << static_cast<double>(enforced)/ static_cast<double>(all);
 }
 void ParserKFile::test()
 {
     std::cout << "executing test" << std::endl;
-    system("cd /tmp/testlsdyna && pwd && rm /tmp/testlsdyna/* && /usr/ansys_inc/v172/ansys/bin/lsdyna i=/tmp/file.k ncpu=8");
+    std::string command = std::string("cd ") + work_dir + "&& pwd && /usr/ansys_inc/v172/ansys/bin/lsdyna ncpu=10 i=" + work_dir + "/output.txt";
+    system(command.c_str());
 }
 void ParserKFile::handle_node(std::string& str)
 {
@@ -230,7 +241,7 @@ void ParserKFile::handle_element_solid(std::string& str)
 }
 std::vector<Opt_Par>& ParserKFile::extractOptPar()
 {
-    std::ifstream file("/home/yinly/opt/lsdyna/optpar.txt");
+    std::ifstream file(work_dir + "/optpar.txt");
     std::stringstream ss;
     std::string str;
     std::vector<Opt_Par>* p = new std::vector<Opt_Par>;
@@ -251,7 +262,7 @@ std::vector<Opt_Par>& ParserKFile::extractOptPar()
 }
 void ParserKFile::calcu(){
     using namespace std;
-    ifstream file("/tmp/testlsdyna/rcforc");
+    ifstream file(work_dir + "/rcforc");
     string str;
     stringstream ss;
     vector<PointData> result;
@@ -307,7 +318,7 @@ void ParserKFile::calcu(){
         ans += 6*(i->t - j->t)*(i->f1+i->f2+j->f1+j->f2)/2;
     }
     file.close();
-    ofstream file2("/home/yinly/opt/lsdyna/obj.txt");
+    ofstream file2(work_dir + "/obj.txt");
     file2 << ans;
     file2.close();
     std::cout << "Answer is: " << ans <<std::endl;

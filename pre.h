@@ -45,11 +45,11 @@ struct PointData
 class ParserKFile
 {
 public:
-    ParserKFile(std::string in, std::string out):m_input(in),m_output(out){
+    ParserKFile(std::string in, std::string wd):m_input(in),work_dir(wd) {
         if(!m_input)
             std::cout << "Cannot open file: " << in << std::endl;
-        if(!m_output)
-            std::cout << "Cannot open file: " << out << std::endl;
+        while(work_dir.back() == '/') work_dir.pop_back();
+        m_output.open(work_dir + "/output.txt");
     }
     ~ParserKFile(){
         m_input.close();
@@ -64,6 +64,7 @@ public:
 
 
 private:
+    std::string work_dir;
     std::ifstream m_input;
     std::ofstream m_output;
     int m_state = -1;
