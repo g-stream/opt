@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
     reader.parser();
     reader.adjust();
     reader.dump();
-    //reader.test();
-    //reader.calcu();
+    reader.test();
+    reader.calcu();
     return 0;
 }
