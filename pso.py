@@ -31,11 +31,14 @@ def calcu():
     #create a unique directory
     lock = threading.Lock()
     lock.acquire()
-    maxdir = max([int(i) for i in os.listdir(work_dir)])
+    maxdir = 0
+    if os.listdir(work_dir) != []:
+        maxdir = max([int(i) for i in os.listdir(work_dir)])
     new_dir = work_dir + '/' + str(maxdir+1)
     os.mkdir(new_dir)
     lock.release()
-    par_list = [[0.1, 0.1, 0.1, 0.1, 0.05, 0.05, 0.05, 0.05],[0.2, 0.2, 0.2, 0.2, 0.05, 0.05, 0.05, 0.05] ]
+    par_list = [[0.1, 0.1, 0.1, 0.1, 0.05, 0.05, 0.05, 0.05],[0.2, 0.2, 0.2, 0.2, 0.05, 0.05, 0.05, 0.05],[0.15,0.15,0.15,0.15,0.1,0.1,0.1,0.1]]
+
     partxt = open(new_dir + "/optpar.txt", 'w')
     for elems in par_list:
         for elem in elems:
@@ -50,9 +53,8 @@ def calcu():
     obj = float(data)
     with open(new_dir + "/rate.txt") as input:
         data = input.read()
-    rate = float(data*100)
+    rate = float(data)*100
     print("obj: ", obj, " rate: ", rate)
-
 creator.create("FitnessMax", base.Fitness, weights=(1.0, -1.0))
 creator.create("Particle", list, fitness=creator.FitnessMax, speed=list, 
     smin=None, smax=None, best=None)
