@@ -2,3 +2,8 @@
 *.kdev4
 main
 .vscode
+*.hi
+*.hs
+*~
+*.o
+hello

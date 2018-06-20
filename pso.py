@@ -25,9 +25,10 @@ from deap import benchmarks
 from deap import creator
 from deap import tools
 
-work_dir = "/tmp/testlsdyna"
+work_dir = "/home/yinly/testlsdyna"
 
-def calcu():
+def calcu(individual):
+    par_list = [individual[:8], individual[8:]]
     #create a unique directory
     lock = threading.Lock()
     lock.acquire()
@@ -37,7 +38,6 @@ def calcu():
     new_dir = work_dir + '/' + str(maxdir+1)
     os.mkdir(new_dir)
     lock.release()
-    par_list = [[0.1, 0.1, 0.1, 0.1, 0.05, 0.05, 0.05, 0.05],[0.2, 0.2, 0.2, 0.2, 0.05, 0.05, 0.05, 0.05],[0.15,0.15,0.15,0.15,0.1,0.1,0.1,0.1]]
 
     partxt = open(new_dir + "/optpar.txt", 'w')
     for elems in par_list:
@@ -55,6 +55,8 @@ def calcu():
         data = input.read()
     rate = float(data)*100
     print("obj: ", obj, " rate: ", rate)
+    return obj, abs(rate - 30)*10
+
 creator.create("FitnessMax", base.Fitness, weights=(1.0, -1.0))
 creator.create("Particle", list, fitness=creator.FitnessMax, speed=list, 
     smin=None, smax=None, best=None)
@@ -80,10 +82,10 @@ def updateParticle(part, best, phi1, phi2):
     part[:] = list(map(operator.add, part, part.speed))
 
 toolbox = base.Toolbox()
-toolbox.register("particle", generate, size=2, pmin=-6, pmax=6, smin=-3, smax=3)
+toolbox.register("particle", generate, size=16, pmin=0, pmax=0.2, smin=-0.1, smax=0.1)
 toolbox.register("population", tools.initRepeat, list, toolbox.particle)
-toolbox.register("update", updateParticle, phi1=2.0, phi2=2.0)
-toolbox.register("evaluate", benchmarks.h1)
+toolbox.register("update", updateParticle, phi1=0.01, phi2=0.01)
+toolbox.register("evaluate", calcu)
 
 def main():
     pop = toolbox.population(n=5)
@@ -118,4 +120,4 @@ def main():
     return pop, logbook, best
 
 if __name__ == "__main__":
-    calcu()
+    main()
